@@ -1,5 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 const bcrypt = require('bcrypt');
 const path = require("path");
 const bodyParser = require("body-parser");
@@ -50,6 +52,28 @@ require('./db/conn')//db connection
 
 ////////////////////////end routes ////////////////////////////////////
 
+
+// Swagger options
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Your API Title',
+            version: '1.0.0',
+            description: 'API Documentation for Your Project'
+        },
+        servers: [
+            {
+                url: 'http://localhost:5000', // Your API server URL
+                description: 'Local server'
+            }
+        ]
+    },
+    apis: ['./routes/apiList.js'] // Path to the files where you’ll write Swagger comments
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 
 

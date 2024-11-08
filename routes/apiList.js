@@ -12,11 +12,158 @@ const jwt = require("jsonwebtoken");
  const Tokens = require("../models/token" );
  const Timesheets = require("../models/timesheet" );
 
+ const authenticateToken = require('../authenticateToken');
 
 // console.log("hello isAuth",isAuth)
 
 // const { Users,Project } = require("./../models");
 const mongoose = require('mongoose');
+
+/**
+ * @swagger
+ * /createUser:
+ *   post:
+ *     summary: Create a new user
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: object
+ *                 required:
+ *                   - emp_id
+ *                   - name
+ *                   - email
+ *                   - designation
+ *                   - role_name
+ *                   - role_id
+ *                   - password
+ *                 properties:
+ *                   emp_id:
+ *                     type: string
+ *                     description: Employee ID
+ *                   name:
+ *                     type: string
+ *                     description: Name of the employee
+ *                   email:
+ *                     type: string
+ *                     description: Email address of the employee
+ *                   designation:
+ *                     type: string
+ *                     description: Job title or role of the employee
+ *                   role_name:
+ *                     type: string
+ *                     description: Role name (e.g., "admin", "ba", "emp")
+ *                   role_id:
+ *                     type: string
+ *                     description: Role ID (e.g., "1" for admin, "2" for employee)
+ *                   password:
+ *                     type: string
+ *                     description: Password for the new user (minimum 6 characters)
+ *     responses:
+ *       200:
+ *         description: Successfully created the new user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 status_code:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: new user saved successfully.
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     emp_id:
+ *                       type: string
+ *                       description: Employee ID
+ *                     name:
+ *                       type: string
+ *                       description: Name of the employee
+ *                     email:
+ *                       type: string
+ *                       description: Email of the employee
+ *                     designation:
+ *                       type: string
+ *                       description: Job title of the employee
+ *                     role_name:
+ *                       type: string
+ *                       description: Role of the employee
+ *                     role_id:
+ *                       type: string
+ *                       description: Role ID of the employee
+ *                     token:
+ *                       type: string
+ *                       description: JWT token for the new user
+ *       400:
+ *         description: Bad request, invalid or missing data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: bad request
+ *                 status_code:
+ *                   type: integer
+ *                   example: 400
+ *                 message:
+ *                   type: string
+ *                   example: Unable to create new user record
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       required:
+ *         - emp_id
+ *         - name
+ *         - email
+ *         - role_name
+ *         - role_id
+ *         - password
+ *       properties:
+ *         emp_id:
+ *           type: string
+ *           description: Employee ID
+ *         name:
+ *           type: string
+ *           description: Name of the employee
+ *         email:
+ *           type: string
+ *           description: Email address of the employee
+ *         designation:
+ *           type: string
+ *           description: Designation of the employee
+ *         role_name:
+ *           type: string
+ *           description: Role of the employee (e.g., admin, ba, emp)
+ *         role_id:
+ *           type: string
+ *           description: Role ID (e.g., 1 for admin, 2 for employee)
+ *         password:
+ *           type: string
+ *           description: Password for the user
+ *         token:
+ *           type: string
+ *           description: JWT token for authentication
+ */
+
+
 
 router.post('/createUser', async function(req, res) {
     // console.log("rrrr",req.body.data)
@@ -364,17 +511,167 @@ router.delete('/deleteUser', async function(req, res) {
     }
 });
 
-router.get('/userDetails', async function(req, res) {
 
+/**
+ * @swagger
+ * /userDetails:
+ *   get:
+ *     summary: Retrieve the list of all employees
+ *     tags: [Employees]
+ *     security:
+ *       - bearerAuth: []  # Use Bearer Token for authentication
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved employee list
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 status_code:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: Get Emp successfully.
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     emp_list_result:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Bad request, unable to retrieve employee list
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: bad request
+ *                 status_code:
+ *                   type: integer
+ *                   example: 400
+ *                 message:
+ *                   type: string
+ *                   example: Unable to emp list record
+ *                 error:
+ *                   type: string
+ *                   example: ""
+ */
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     User:
+ *       type: object
+ *       required:
+ *         - emp_id
+ *         - name
+ *         - email
+ *         - role_name
+ *       properties:
+ *         emp_id:
+ *           type: string
+ *           description: Employee ID
+ *         name:
+ *           type: string
+ *           description: Name of the employee
+ *         email:
+ *           type: string
+ *           description: Email address of the employee
+ *         role_name:
+ *           type: string
+ *           description: Role of the employee (e.g., "admin", "ba", "emp")
+ *         role_id:
+ *           type: string
+ *           description: Role ID of the employee
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     EmpListResponse:
+ *       type: object
+ *       properties:
+ *         status:
+ *           type: string
+ *           example: success
+ *         status_code:
+ *           type: integer
+ *           example: 200
+ *         message:
+ *           type: string
+ *           example: Get Emp successfully.
+ *         data:
+ *           type: object
+ *           properties:
+ *             emp_list_result:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *     ErrorResponse:
+ *       type: object
+ *       properties:
+ *         status:
+ *           type: string
+ *           example: bad request
+ *         status_code:
+ *           type: integer
+ *           example: 400
+ *         message:
+ *           type: string
+ *           example: Unable to emp list record
+ *         error:
+ *           type: string
+ *           example: ""
+ */
+
+/**
+ * @swagger
+ * /userDetails:
+ *   get:
+ *     summary: Fetch the list of all employees
+ *     tags: [Employees]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Employee list fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/EmpListResponse'
+ *       400:
+ *         description: Error occurred when fetching employee list
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+router.get('/userDetails', authenticateToken, async function(req, res) {
     try {
-         const emp_list_result = await Users.find().sort({$natural:-1})
-           if (emp_list_result) {
+        const emp_list_result = await Users.find().sort({ $natural: -1 });
+        if (emp_list_result) {
             return res.send({
                 status: "success",
                 status_code: 200,
                 message: "Get Emp successfully.",
-                data: {  emp_list_result }        
-            });  
+                data: { emp_list_result }
+            });
         }
         throw new Error("Unable to emp list record");
     } catch (error) {
@@ -383,9 +680,32 @@ router.get('/userDetails', async function(req, res) {
             status_code: 400,
             message: error.message,
             error: ""
-        })
+        });
     }
 });
+
+// router.get('/userDetails',authenticateToken, async function(req, res) {
+
+//     try {
+//          const emp_list_result = await Users.find().sort({$natural:-1})
+//            if (emp_list_result) {
+//             return res.send({
+//                 status: "success",
+//                 status_code: 200,
+//                 message: "Get Emp successfully.",
+//                 data: {  emp_list_result }        
+//             });  
+//         }
+//         throw new Error("Unable to emp list record");
+//     } catch (error) {
+//         res.send({
+//             status: "bad request",
+//             status_code: 400,
+//             message: error.message,
+//             error: ""
+//         })
+//     }
+// });
 router.get('/baDetails', async function(req, res) {
 
     try {
@@ -408,17 +728,163 @@ router.get('/baDetails', async function(req, res) {
         })
     }
 });
-router.get('/empDetails', async function(req, res) {
 
+//swagger
+
+/**
+ * @swagger
+ * /empDetails:
+ *   get:
+ *     summary: Retrieve employee details
+ *     tags: [Employees]
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved employee details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 status_code:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: Get emp details successfully.
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     emp_details:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Bad request, unable to retrieve employee details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: bad request
+ *                 status_code:
+ *                   type: integer
+ *                   example: 400
+ *                 message:
+ *                   type: string
+ *                   example: Unable to find emp list record
+ *                 error:
+ *                   type: string
+ *                   example: ""
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       required:
+ *         - emp_id
+ *         - name
+ *         - email
+ *         - role_name
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The auto-generated ID of the user
+ *         emp_id:
+ *           type: string
+ *           description: Employee ID
+ *         name:
+ *           type: string
+ *           description: User's name
+ *         email:
+ *           type: string
+ *           description: User's email address
+ *         role_name:
+ *           type: string
+ *           description: Role of the user (e.g., "admin", "ba", "emp")
+ *         role_id:
+ *           type: string
+ *           description: Role ID of the user
+ */
+
+/**
+ * @swagger
+ * /empDetails:
+ *   get:
+ *     summary: Fetch employee details based on role_id=3
+ *     tags: [Employees]
+ *     responses:
+ *       200:
+ *         description: Employee details fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/EmpDetailsResponse'
+ *       400:
+ *         description: Error occurred when fetching employee details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     EmpDetailsResponse:
+ *       type: object
+ *       properties:
+ *         status:
+ *           type: string
+ *           example: success
+ *         status_code:
+ *           type: integer
+ *           example: 200
+ *         message:
+ *           type: string
+ *           example: Get emp details successfully.
+ *         data:
+ *           type: object
+ *           properties:
+ *             emp_details:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *     ErrorResponse:
+ *       type: object
+ *       properties:
+ *         status:
+ *           type: string
+ *           example: bad request
+ *         status_code:
+ *           type: integer
+ *           example: 400
+ *         message:
+ *           type: string
+ *           example: Unable to find emp list record
+ *         error:
+ *           type: string
+ *           example: ""
+ */
+
+router.get('/empDetails', async function(req, res) {
     try {
-         const emp_details= await Users.find({ role_id:3 }).sort({$natural:-1})
-           if (emp_details) {
+        const emp_details = await Users.find({ role_id: 3 }).sort({ $natural: -1 });
+        if (emp_details) {
             return res.send({
                 status: "success",
                 status_code: 200,
                 message: "Get emp details successfully.",
-                data: {  emp_details }        
-            });  
+                data: { emp_details }
+            });
         }
         throw new Error("Unable to find emp list record");
     } catch (error) {
@@ -427,9 +893,33 @@ router.get('/empDetails', async function(req, res) {
             status_code: 400,
             message: error.message,
             error: ""
-        })
+        });
     }
 });
+
+//end swagger//
+// router.get('/empDetails', async function(req, res) {
+
+//     try {
+//          const emp_details= await Users.find({ role_id:3 }).sort({$natural:-1})
+//            if (emp_details) {
+//             return res.send({
+//                 status: "success",
+//                 status_code: 200,
+//                 message: "Get emp details successfully.",
+//                 data: {  emp_details }        
+//             });  
+//         }
+//         throw new Error("Unable to find emp list record");
+//     } catch (error) {
+//         res.send({
+//             status: "bad request",
+//             status_code: 400,
+//             message: error.message,
+//             error: ""
+//         })
+//     }
+// });
 router.get('/adminDetails', async function(req, res) {
 
     try {
